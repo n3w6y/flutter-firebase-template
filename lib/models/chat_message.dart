@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 part 'chat_message.g.dart';
 
@@ -12,11 +13,12 @@ enum MessageRole {
   system,
 }
 
-/// Chat message model for OpenRouter API
+/// Chat message model for OpenRouter API and Firestore
 @JsonSerializable()
 class ChatMessage {
   final MessageRole role;
   final String content;
+  @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
   final DateTime timestamp;
   final String? id;
 
@@ -106,4 +108,43 @@ class ChatMessage {
   String toString() {
     return 'ChatMessage(role: $role, content: $content, timestamp: $timestamp, id: $id)';
   }
+
+  /// Convert to Firestore document
+  Map<String, dynamic> toFirestore() {
+    return {
+      'role': role.name,
+      'content': content,
+      'timestamp': Timestamp.fromDate(timestamp),
+      'id': id,
+    };
+  }
+
+  /// Create from Firestore document
+  factory ChatMessage.fromFirestore(Map<String, dynamic> data) {
+    return ChatMessage(
+      role: MessageRole.values.firstWhere(
+        (e) => e.name == data['role'],
+        orElse: () => MessageRole.user,
+      ),
+      content: data['content'] ?? '',
+      timestamp: (data['timestamp'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      id: data['id'],
+    );
+  }
+}
+
+/// Helper functions for JSON serialization with Firestore Timestamp
+DateTime _timestampFromJson(dynamic timestamp) {
+  if (timestamp is Timestamp) {
+    return timestamp.toDate();
+  } else if (timestamp is String) {
+    return DateTime.parse(timestamp);
+  } else if (timestamp is int) {
+    return DateTime.fromMillisecondsSinceEpoch(timestamp);
+  }
+  return DateTime.now();
+}
+
+dynamic _timestampToJson(DateTime dateTime) {
+  return dateTime.toIso8601String();
 }

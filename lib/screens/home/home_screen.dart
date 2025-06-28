@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../constants/app_constants.dart';
-import '../../providers/onboarding_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/chat_provider.dart';
 import '../../models/chat_message.dart';
@@ -34,7 +33,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final userMessages = ref.watch(userMessagesProvider);
     final isLoading = ref.watch(isChatLoadingProvider);
     final error = ref.watch(chatErrorProvider);
-    final currentModel = ref.watch(currentModelProvider);
 
     return Scaffold(
       appBar: AppBar(

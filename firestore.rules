@@ -1,0 +1,93 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can only access their own user document
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Users can access their own conversations
+      match /conversations/{conversationId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+        
+        // Users can access messages within their conversations
+        match /messages/{messageId} {
+          allow read, write: if request.auth != null && request.auth.uid == userId;
+        }
+      }
+      
+      // Users can access their own settings
+      match /settings/{settingId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // Users can access their own app data (generic subcollection)
+      match /{collection}/{document} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+    
+    // Global collections (if needed for shared data)
+    match /global/{document} {
+      // Only allow read access to global data
+      allow read: if request.auth != null;
+      // Write access only for admin users (you can customize this)
+      allow write: if false; // Change this based on your admin logic
+    }
+    
+    // Public collections (if needed for public data)
+    match /public/{document} {
+      allow read: if true; // Anyone can read public data
+      allow write: if request.auth != null; // Only authenticated users can write
+    }
+    
+    // Helper functions for validation
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+    
+    function isValidUser() {
+      return isAuthenticated() && 
+             request.auth.token.email_verified == true;
+    }
+    
+    // Validation functions for data integrity
+    function isValidConversation() {
+      return request.resource.data.keys().hasAll(['title', 'createdAt', 'updatedAt', 'userId', 'model']) &&
+             request.resource.data.userId == request.auth.uid &&
+             request.resource.data.title is string &&
+             request.resource.data.model is string;
+    }
+    
+    function isValidMessage() {
+      return request.resource.data.keys().hasAll(['role', 'content', 'timestamp']) &&
+             request.resource.data.role in ['user', 'assistant', 'system'] &&
+             request.resource.data.content is string &&
+             request.resource.data.timestamp is timestamp;
+    }
+    
+    // More specific rules with validation
+    match /users/{userId}/conversations/{conversationId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidConversation();
+      allow update: if isOwner(userId) && isValidConversation();
+      allow delete: if isOwner(userId);
+      
+      match /messages/{messageId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidMessage();
+        allow update: if isOwner(userId) && isValidMessage();
+        allow delete: if isOwner(userId);
+      }
+    }
+    
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

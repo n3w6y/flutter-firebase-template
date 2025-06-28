@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 
 import 'firebase_options.dart';
 import 'services/onboarding_service.dart';
+import 'services/firestore_service.dart';
 import 'utils/app_router.dart';
 import 'constants/app_constants.dart';
 
@@ -17,6 +18,7 @@ void main() async {
 
   // Initialize services
   await OnboardingService.init();
+  await FirestoreService().initialize();
 
   runApp(const ProviderScope(child: MyApp()));
 }

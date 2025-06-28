@@ -9,7 +9,7 @@ part of 'chat_message.dart';
 ChatMessage _$ChatMessageFromJson(Map<String, dynamic> json) => ChatMessage(
   role: $enumDecode(_$MessageRoleEnumMap, json['role']),
   content: json['content'] as String,
-  timestamp: DateTime.parse(json['timestamp'] as String),
+  timestamp: _timestampFromJson(json['timestamp']),
   id: json['id'] as String?,
 );
 
@@ -17,7 +17,7 @@ Map<String, dynamic> _$ChatMessageToJson(ChatMessage instance) =>
     <String, dynamic>{
       'role': _$MessageRoleEnumMap[instance.role]!,
       'content': instance.content,
-      'timestamp': instance.timestamp.toIso8601String(),
+      'timestamp': _timestampToJson(instance.timestamp),
       'id': instance.id,
     };
 
