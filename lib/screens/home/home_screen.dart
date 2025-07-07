@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../constants/app_constants.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/chat_provider.dart';
+// import '../../providers/speech_provider.dart';
 import '../../models/chat_message.dart';
 
 /// Home screen with AI chatbot interface
@@ -18,12 +19,30 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  bool _isVoiceMode = false;
+  bool _hasText = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _messageController.addListener(_onTextChanged);
+  }
 
   @override
   void dispose() {
+    _messageController.removeListener(_onTextChanged);
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onTextChanged() {
+    final hasText = _messageController.text.trim().isNotEmpty;
+    if (hasText != _hasText) {
+      setState(() {
+        _hasText = hasText;
+      });
+    }
   }
 
   @override
@@ -33,6 +52,43 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final userMessages = ref.watch(userMessagesProvider);
     final isLoading = ref.watch(isChatLoadingProvider);
     final error = ref.watch(chatErrorProvider);
+
+    // Speech recognition state (temporarily disabled)
+    // final speechService = ref.read(speechServiceProvider);
+
+    // Speech functionality temporarily disabled for APK build
+    /*
+    // Update text field with speech words when in voice mode
+    ref.listen(speechWordsProvider, (previous, next) {
+      if (_isVoiceMode && next.hasValue && next.value != null) {
+        _messageController.text = next.value!;
+        _messageController.selection = TextSelection.fromPosition(
+          TextPosition(offset: _messageController.text.length),
+        );
+      }
+    });
+
+    // Handle speech errors
+    ref.listen(speechErrorProvider, (previous, next) {
+      if (next.hasValue && next.value != null && next.value!.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Speech Error: ${next.value}'),
+            backgroundColor: theme.colorScheme.error,
+          ),
+        );
+      }
+    });
+
+    // Auto-stop voice mode when listening stops
+    ref.listen(speechListeningProvider, (previous, next) {
+      if (next.hasValue && next.value == false && _isVoiceMode) {
+        setState(() {
+          _isVoiceMode = false;
+        });
+      }
+    });
+    */
 
     return Scaffold(
       appBar: AppBar(
@@ -175,7 +231,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
 
           // Message input
-          _buildMessageInput(context, theme),
+          _buildMessageInput(context, theme, false),
         ],
       ),
     );
@@ -348,7 +404,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   /// Build message input field
-  Widget _buildMessageInput(BuildContext context, ThemeData theme) {
+  Widget _buildMessageInput(BuildContext context, ThemeData theme, bool isListening) {
     return Container(
       padding: const EdgeInsets.all(AppConstants.defaultPadding),
       decoration: BoxDecoration(
@@ -366,17 +422,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: TextField(
                 controller: _messageController,
                 decoration: InputDecoration(
-                  hintText: 'Type your message...',
+                  hintText: _isVoiceMode
+                      ? (isListening ? 'Listening...' : 'Tap mic to speak')
+                      : 'Type your message...',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
                     borderSide: BorderSide(
-                      color: theme.colorScheme.outline.withOpacity(0.2),
+                      color: _isVoiceMode
+                          ? theme.colorScheme.primary.withOpacity(0.5)
+                          : theme.colorScheme.outline.withOpacity(0.2),
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
                     borderSide: BorderSide(
-                      color: theme.colorScheme.outline.withOpacity(0.2),
+                      color: _isVoiceMode
+                          ? theme.colorScheme.primary.withOpacity(0.5)
+                          : theme.colorScheme.outline.withOpacity(0.2),
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
@@ -393,17 +455,43 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 maxLines: null,
                 textInputAction: TextInputAction.send,
                 onSubmitted: _sendMessage,
+                readOnly: _isVoiceMode && isListening,
               ),
             ),
 
             const SizedBox(width: 8),
 
+            // Voice input button
             FloatingActionButton.small(
-              onPressed: () => _sendMessage(_messageController.text),
-              backgroundColor: theme.colorScheme.primary,
+              onPressed: _toggleVoiceInput,
+              backgroundColor: _isVoiceMode
+                  ? (isListening ? theme.colorScheme.error : theme.colorScheme.secondary)
+                  : theme.colorScheme.surface,
+              child: Icon(
+                _isVoiceMode
+                    ? (isListening ? Icons.stop : Icons.mic)
+                    : Icons.mic_none,
+                color: _isVoiceMode
+                    ? (isListening ? theme.colorScheme.onError : theme.colorScheme.onSecondary)
+                    : theme.colorScheme.onSurface,
+              ),
+            ),
+
+            const SizedBox(width: 8),
+
+            // Send button
+            FloatingActionButton.small(
+              onPressed: _hasText
+                  ? () => _sendMessage(_messageController.text)
+                  : null,
+              backgroundColor: _hasText
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.outline.withOpacity(0.3),
               child: Icon(
                 Icons.send,
-                color: theme.colorScheme.onPrimary,
+                color: _hasText
+                    ? theme.colorScheme.onPrimary
+                    : theme.colorScheme.onSurface.withOpacity(0.5),
               ),
             ),
           ],
@@ -419,6 +507,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ref.read(chatOperationsProvider).sendMessage(message);
     _messageController.clear();
 
+    // Exit voice mode after sending
+    if (_isVoiceMode) {
+      setState(() {
+        _isVoiceMode = false;
+      });
+    }
+
     // Scroll to bottom after sending message
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -429,5 +524,37 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         );
       }
     });
+  }
+
+  /// Toggle voice input mode (temporarily disabled)
+  Future<void> _toggleVoiceInput() async {
+    // Speech functionality temporarily disabled for APK build
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Voice input feature coming soon!'),
+      ),
+    );
+    /*
+    final speechService = ref.read(speechServiceProvider);
+
+    if (_isVoiceMode) {
+      // If currently in voice mode, stop listening and exit voice mode
+      if (speechService.isListening) {
+        await speechService.stopListening();
+      }
+      setState(() {
+        _isVoiceMode = false;
+      });
+    } else {
+      // Enter voice mode and start listening
+      setState(() {
+        _isVoiceMode = true;
+      });
+
+      // Clear current text and start listening
+      _messageController.clear();
+      await speechService.startListening();
+    }
+    */
   }
 }

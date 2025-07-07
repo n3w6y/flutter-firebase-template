@@ -13,13 +13,22 @@ A comprehensive Flutter template for building AI-powered mobile applications wit
 ### 🔐 **Authentication**
 - **Firebase Authentication** with email/password
 - **Google Sign-In** integration
+- **Apple Sign-In** support
 - **Email verification** and password reset
-- **User profile management** with photo support
+- **Secure session management** and auto-login
+
+### 👤 **Profile & Settings**
+- **Comprehensive profile management** with editable information
+- **Settings system** with appearance, AI, and privacy controls
+- **Dark/Light mode** with custom theme colors
+- **Font size adjustment** for accessibility
+- **Account security** and data management
 
 ### 🤖 **AI Integration**
 - **OpenRouter API** with multiple AI models
 - **DeepSeek R1** for advanced reasoning
 - **Real-time chat interface** with typing indicators
+- **Voice input** with speech-to-text functionality
 - **Message persistence** and conversation management
 
 ### 🗄️ **Database**
@@ -86,6 +95,7 @@ flutter build apk --release
 - 🎯 [**Onboarding Guide**](docs/ONBOARDING_GUIDE.md) - Configure first-time user experience
 - 🔐 [**Firebase Auth Guide**](docs/FIREBASE_AUTH_GUIDE.md) - Authentication setup and customization
 - 🤖 [**AI Integration Guide**](docs/AI_INTEGRATION_GUIDE.md) - OpenRouter API and chat features
+- 👤 [**Profile & Settings Guide**](docs/PROFILE_SETTINGS_GUIDE.md) - User management and customization
 - 🗄️ [**Firestore Integration**](docs/FIRESTORE_INTEGRATION.md) - Database setup and usage
 - 🔧 [**Firestore Setup**](docs/FIRESTORE_SETUP.md) - Quick database configuration
 
@@ -275,7 +285,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### **Upcoming Features**
 - [ ] Push notifications
-- [ ] Voice messages
+- [x] Voice input (speech-to-text)
+- [x] Profile & Settings management
 - [ ] File sharing
 - [ ] Multi-language support
 - [ ] Advanced AI features

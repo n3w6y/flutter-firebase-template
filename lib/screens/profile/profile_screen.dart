@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../constants/app_constants.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/auth_state.dart';
+import '../../models/user_model.dart';
 
 /// User profile management screen
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -80,11 +81,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 style: TextStyle(color: theme.colorScheme.primary),
               ),
             )
-          else
+          else ...[
             IconButton(
-              onPressed: () => setState(() => _isEditing = true),
-              icon: const Icon(Icons.edit),
+              onPressed: () => context.push('/settings'),
+              icon: const Icon(Icons.settings),
+              tooltip: 'Settings',
             ),
+            IconButton(
+              onPressed: () => context.push('/profile/edit'),
+              icon: const Icon(Icons.edit),
+              tooltip: 'Edit Profile',
+            ),
+          ],
         ],
       ),
       body: SingleChildScrollView(
@@ -101,6 +109,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             
             const SizedBox(height: 32),
             
+            // Quick Actions
+            _buildQuickActions(context, user),
+
+            const SizedBox(height: 24),
+
             // Account actions
             _buildAccountActions(context, user, authState),
           ],
@@ -242,10 +255,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             
             Wrap(
               spacing: 8,
-              children: user.providerIds.map((providerId) {
+              children: user.providerIds.map<Widget>((providerId) {
                 IconData icon;
                 String label;
-                
+
                 switch (providerId) {
                   case 'password':
                     icon = Icons.email;
@@ -263,13 +276,107 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     icon = Icons.account_circle;
                     label = providerId;
                 }
-                
+
                 return Chip(
                   avatar: Icon(icon, size: 16),
                   label: Text(label),
                   backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.1),
                 );
               }).toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Build quick actions section
+  Widget _buildQuickActions(BuildContext context, UserModel user) {
+    final theme = Theme.of(context);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppConstants.defaultPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Quick Actions',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            Row(
+              children: [
+                Expanded(
+                  child: _buildQuickActionButton(
+                    context,
+                    icon: Icons.settings,
+                    label: 'Settings',
+                    onTap: () => context.push('/settings'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildQuickActionButton(
+                    context,
+                    icon: Icons.help_outline,
+                    label: 'Help',
+                    onTap: () => _showHelp(context),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildQuickActionButton(
+                    context,
+                    icon: Icons.share,
+                    label: 'Share',
+                    onTap: () => _shareApp(context),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickActionButton(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    final theme = Theme.of(context);
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: theme.colorScheme.primary.withValues(alpha: 0.1),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              color: theme.colorScheme.primary,
+              size: 24,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.primary,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -430,5 +537,100 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         );
       }
     }
+  }
+
+  // Helper methods for quick actions
+  void _showHelp(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Help & Support'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Need help? Here are some resources:'),
+            SizedBox(height: 16),
+            Text('• Check our FAQ section'),
+            Text('• Contact support team'),
+            Text('• Visit our documentation'),
+            Text('• Join our community forum'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              // TODO: Open support page
+            },
+            child: const Text('Contact Support'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _shareApp(BuildContext context) {
+    // TODO: Implement app sharing
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Share app feature coming soon!')),
+    );
+  }
+
+  void _showAccountInfo(BuildContext context, UserModel user) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Account Information'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildInfoRow('User ID', user.uid),
+            _buildInfoRow('Email', user.email ?? 'Not set'),
+            _buildInfoRow('Email Verified', user.emailVerified ? 'Yes' : 'No'),
+            _buildInfoRow('Account Created', _formatDate(user.createdAt)),
+            _buildInfoRow('Last Sign In', _formatDate(user.lastSignInTime)),
+            _buildInfoRow('Sign In Methods', user.providerIds.join(', ')),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(
+              '$label:',
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
+          ),
+          Expanded(
+            child: Text(value),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return 'Unknown';
+    return '${date.day}/${date.month}/${date.year}';
   }
 }

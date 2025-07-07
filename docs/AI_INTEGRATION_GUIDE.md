@@ -678,4 +678,177 @@ class TokenUsageTracker {
 }
 ```
 
-Your AI integration is now ready to provide intelligent conversations! 🚀
+## 🎤 **Voice Input Integration**
+
+### **Overview**
+The template includes speech-to-text functionality that allows users to speak instead of typing their messages to the AI chatbot.
+
+### **Core Components**
+
+#### **1. SpeechService**
+```dart
+// lib/services/speech_service.dart
+class SpeechService {
+  // Initialize speech recognition
+  Future<bool> initialize();
+
+  // Start/stop listening
+  Future<void> startListening();
+  Future<void> stopListening();
+  Future<void> cancel();
+
+  // State streams
+  Stream<bool> get isListeningStream;
+  Stream<String> get wordsStream;
+  Stream<String> get errorStream;
+
+  // Current state
+  bool get isListening;
+  String get lastWords;
+}
+```
+
+#### **2. Speech Providers**
+```dart
+// lib/providers/speech_provider.dart
+final speechServiceProvider;      // Service instance
+final speechListeningProvider;    // Listening state stream
+final speechWordsProvider;        // Recognized words stream
+final speechErrorProvider;        // Error messages stream
+final speechInitializedProvider;  // Initialization state
+```
+
+### **Dependencies**
+```yaml
+# pubspec.yaml
+dependencies:
+  speech_to_text: ^6.6.2
+  permission_handler: ^11.3.1
+```
+
+### **Platform Configuration**
+
+#### **Android Permissions**
+```xml
+<!-- android/app/src/main/AndroidManifest.xml -->
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+<uses-permission android:name="android.permission.MICROPHONE" />
+```
+
+#### **iOS Permissions**
+```xml
+<!-- ios/Runner/Info.plist -->
+<key>NSMicrophoneUsageDescription</key>
+<string>This app needs access to microphone for voice input in the chat.</string>
+<key>NSSpeechRecognitionUsageDescription</key>
+<string>This app needs access to speech recognition for voice input in the chat.</string>
+```
+
+### **Usage in Chat Interface**
+
+#### **Voice Button States**
+- **Inactive**: `Icons.mic_none` - Ready to start voice input
+- **Active**: `Icons.mic` - Voice mode enabled, ready to listen
+- **Listening**: `Icons.stop` with error color - Currently recording
+
+#### **User Flow**
+1. User taps voice button to enter voice mode
+2. Text field shows "Tap mic to speak" hint
+3. User taps voice button again to start listening
+4. Text field shows "Listening..." and becomes read-only
+5. Speech is converted to text in real-time
+6. User can stop manually or speech auto-stops after pause
+7. User can edit the transcribed text if needed
+8. Send button works normally with voice-transcribed text
+
+### **Implementation Example**
+
+#### **Voice Input Toggle**
+```dart
+Future<void> _toggleVoiceInput() async {
+  final speechService = ref.read(speechServiceProvider);
+
+  if (_isVoiceMode) {
+    // Exit voice mode
+    if (speechService.isListening) {
+      await speechService.stopListening();
+    }
+    setState(() => _isVoiceMode = false);
+  } else {
+    // Enter voice mode
+    setState(() => _isVoiceMode = true);
+    _messageController.clear();
+    await speechService.startListening();
+  }
+}
+```
+
+#### **Real-time Text Updates**
+```dart
+// Listen to speech recognition results
+ref.listen(speechWordsProvider, (previous, next) {
+  if (_isVoiceMode && next.hasValue && next.value != null) {
+    _messageController.text = next.value!;
+    _messageController.selection = TextSelection.fromPosition(
+      TextPosition(offset: _messageController.text.length),
+    );
+  }
+});
+```
+
+### **Error Handling**
+```dart
+// Handle speech recognition errors
+ref.listen(speechErrorProvider, (previous, next) {
+  if (next.hasValue && next.value != null && next.value!.isNotEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Speech Error: ${next.value}'),
+        backgroundColor: theme.colorScheme.error,
+      ),
+    );
+  }
+});
+```
+
+### **Customization Options**
+
+#### **Speech Recognition Settings**
+```dart
+// In SpeechService.startListening()
+await _speechToText.listen(
+  listenFor: const Duration(seconds: 30),  // Max duration
+  pauseFor: const Duration(seconds: 3),    // Pause detection
+  partialResults: true,                    // Real-time results
+  localeId: 'en_US',                      // Language
+  cancelOnError: true,                     // Auto-cancel on error
+  listenMode: ListenMode.confirmation,     // Recognition mode
+);
+```
+
+#### **Supported Languages**
+```dart
+// Get available locales
+final locales = await speechService.getLocales();
+for (final locale in locales) {
+  print('${locale.name}: ${locale.localeId}');
+}
+```
+
+### **Best Practices**
+
+1. **Permission Handling**: Always check microphone permissions before starting
+2. **Error Recovery**: Provide clear error messages and recovery options
+3. **User Feedback**: Show visual indicators for listening state
+4. **Auto-stop**: Implement timeout and pause detection
+5. **Offline Fallback**: Gracefully handle when speech recognition is unavailable
+
+### **Troubleshooting**
+
+#### **Common Issues**
+- **Permission Denied**: Check platform-specific permission settings
+- **Not Available**: Speech recognition may not be available on emulators
+- **Poor Recognition**: Ensure quiet environment and clear speech
+- **Timeout**: Adjust `listenFor` duration based on use case
+
+Your AI integration now supports both text and voice input! 🚀

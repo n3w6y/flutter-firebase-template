@@ -65,6 +65,10 @@ dependencies:
   # JSON Serialization
   json_annotation: ^4.9.0
 
+  # Speech Recognition
+  # speech_to_text: ^6.6.2  # Temporarily disabled due to compilation issues
+  permission_handler: ^11.3.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
