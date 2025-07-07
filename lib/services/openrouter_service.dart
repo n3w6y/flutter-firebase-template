@@ -4,16 +4,17 @@ import 'package:http/http.dart' as http;
 
 import '../models/chat_message.dart';
 import '../models/openrouter_models.dart';
+import '../config/api_config.dart';
 
 /// Service for interacting with OpenRouter API
 class OpenRouterService {
   static const String _baseUrl = 'https://openrouter.ai/api/v1';
-  static const String _apiKey = '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';
-  static const String _defaultModel = 'deepseek/deepseek-r1-0528';
-  
+  static String get _apiKey => ApiConfig.validatedOpenRouterApiKey;
+  static String get _defaultModel => ApiConfig.defaultAiModel;
+
   // Optional headers for OpenRouter rankings
-  static const String _siteUrl = 'https://flutter-template.app';
-  static const String _siteName = 'Flutter Template';
+  static String get _siteUrl => ApiConfig.siteUrl;
+  static String get _siteName => ApiConfig.siteName;
 
   final http.Client _client;
 

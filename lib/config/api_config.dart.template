@@ -1,0 +1,42 @@
+/// API Configuration Template
+/// 
+/// IMPORTANT: 
+/// 1. Copy this file to 'api_config.dart' in the same directory
+/// 2. Replace the placeholder values with your actual API keys
+/// 3. Never commit the actual 'api_config.dart' file to version control
+/// 
+class ApiConfig {
+  // OpenRouter API Configuration
+  static const String openRouterApiKey = 'YOUR_OPENROUTER_API_KEY_HERE';
+  static const String defaultAiModel = 'deepseek/deepseek-r1-0528';
+  static const String siteUrl = 'https://your-app-domain.com';
+  static const String siteName = 'Your App Name';
+  
+  // Firebase Configuration (if using custom config)
+  static const String firebaseProjectId = 'your-firebase-project-id';
+  
+  // Other API keys (add as needed)
+  static const String googleMapsApiKey = 'YOUR_GOOGLE_MAPS_API_KEY';
+  static const String analyticsApiKey = 'YOUR_ANALYTICS_API_KEY';
+  
+  // Environment flags
+  static const bool isDevelopment = bool.fromEnvironment('DEVELOPMENT', defaultValue: true);
+  static const bool isProduction = bool.fromEnvironment('PRODUCTION', defaultValue: false);
+  
+  // Validation method
+  static bool get isConfigured {
+    return openRouterApiKey != 'YOUR_OPENROUTER_API_KEY_HERE' &&
+           openRouterApiKey.isNotEmpty;
+  }
+  
+  // Get API key with fallback
+  static String get validatedOpenRouterApiKey {
+    if (!isConfigured) {
+      throw Exception(
+        'OpenRouter API key not configured. Please copy api_config.dart.template '
+        'to api_config.dart and add your API key.'
+      );
+    }
+    return openRouterApiKey;
+  }
+}
