@@ -30,7 +30,7 @@ class OpenRouterRequest {
   /// Create request from chat messages
   factory OpenRouterRequest.fromMessages({
     required List<ChatMessage> messages,
-    String model = 'deepseek/deepseek-r1-0528',
+    String model = 'qwen/qwen3-235b-a22b-2507',
     int? maxTokens = 1000,
     double? temperature = 0.7,
     double? topP = 1.0,

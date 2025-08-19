@@ -171,10 +171,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     // Mark onboarding as completed
     final completeOnboarding = ref.read(onboardingCompletionProvider);
     await completeOnboarding();
-    
-    // Navigate to login screen
+
+    // Navigate to dashboard/home screen directly
     if (mounted) {
-      context.go(AppConstants.loginRoute);
+      context.go(AppConstants.homeRoute);
     }
   }
 }

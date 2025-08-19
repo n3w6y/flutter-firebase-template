@@ -7,6 +7,8 @@ import '../../providers/auth_provider.dart';
 import '../../providers/chat_provider.dart';
 // import '../../providers/speech_provider.dart';
 import '../../models/chat_message.dart';
+import '../../models/user_model.dart';
+import '../../widgets/navigation/responsive_navigation.dart';
 
 /// Home screen with AI chatbot interface
 class HomeScreen extends ConsumerStatefulWidget {
@@ -90,80 +92,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     });
     */
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('AI Chat - ${user?.firstName ?? 'User'}'),
-            Text(
-              'DeepSeek R1',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-            ),
-          ],
+    return ResponsiveNavigation(
+      title: 'AI Chat - ${user?.firstName ?? 'User'}',
+      actions: [
+        // Clear chat button
+        IconButton(
+          onPressed: () {
+            ref.read(chatOperationsProvider).clearChat();
+          },
+          icon: const Icon(Icons.refresh),
+          tooltip: 'Clear Chat',
         ),
-        backgroundColor: theme.colorScheme.surface,
-        elevation: 0,
-        actions: [
-          // Clear chat button
-          IconButton(
-            onPressed: () {
-              ref.read(chatOperationsProvider).clearChat();
-            },
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Clear Chat',
-          ),
 
-          // Profile button
-          IconButton(
-            onPressed: () => context.push('/profile'),
-            icon: CircleAvatar(
-              radius: 16,
-              backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.1),
-              backgroundImage: user?.photoURL != null ? NetworkImage(user!.photoURL!) : null,
-              child: user?.photoURL == null
-                  ? Text(
-                      user?.initials ?? 'U',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )
-                  : null,
-            ),
-          ),
-
-          PopupMenuButton<String>(
-            onSelected: (value) async {
-              switch (value) {
-                case 'profile':
-                  context.push('/profile');
-                  break;
-                case 'logout':
-                  final authNotifier = ref.read(authNotifierProvider.notifier);
-                  final result = await authNotifier.signOut();
-                  if (context.mounted && result.success) {
-                    context.go(AppConstants.loginRoute);
-                  }
-                  break;
-              }
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'profile',
-                child: Text('Profile'),
-              ),
-              const PopupMenuItem(
-                value: 'logout',
-                child: Text('Logout'),
-              ),
-            ],
-          ),
-        ],
-      ),
-      body: Column(
+        // Account section - shows different options based on auth status
+        _buildAccountSection(context, theme, user),
+      ],
+      child: Column(
         children: [
           // Error banner
           if (error != null)
@@ -273,7 +217,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const SizedBox(height: 16),
 
             Text(
-              'Start a conversation with DeepSeek R1, an advanced AI model. Ask questions, get help, or just chat!',
+              'Start a conversation with Qwen3, an advanced AI model with exceptional reasoning capabilities. Ask questions, get help, or just chat!',
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: theme.colorScheme.onSurface.withOpacity(0.7),
                 height: 1.5,
@@ -556,5 +500,137 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       await speechService.startListening();
     }
     */
+  }
+
+  /// Build account section in app bar - shows different options based on auth status
+  Widget _buildAccountSection(BuildContext context, ThemeData theme, UserModel? user) {
+    if (user != null) {
+      // User is authenticated - show profile and logout options
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Profile button
+          IconButton(
+            onPressed: () => context.push('/profile'),
+            icon: CircleAvatar(
+              radius: 16,
+              backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.1),
+              backgroundImage: user.photoURL != null ? NetworkImage(user.photoURL!) : null,
+              child: user.photoURL == null
+                  ? Text(
+                      user.initials ?? 'U',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )
+                  : null,
+            ),
+          ),
+
+          // Menu with profile and logout options
+          PopupMenuButton<String>(
+            onSelected: (value) async {
+              switch (value) {
+                case 'profile':
+                  context.push('/profile');
+                  break;
+                case 'logout':
+                  final authNotifier = ref.read(authNotifierProvider.notifier);
+                  final result = await authNotifier.signOut();
+                  if (context.mounted && result.success) {
+                    // Stay on dashboard after logout
+                    setState(() {});
+                  }
+                  break;
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'profile',
+                child: Row(
+                  children: [
+                    Icon(Icons.person),
+                    SizedBox(width: 8),
+                    Text('Profile'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    Icon(Icons.logout),
+                    SizedBox(width: 8),
+                    Text('Logout'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    } else {
+      // User is not authenticated - show login options
+      return PopupMenuButton<String>(
+        icon: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.primary,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.person_outline,
+                color: theme.colorScheme.onPrimary,
+                size: 18,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                'Account',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+        onSelected: (value) {
+          switch (value) {
+            case 'login':
+              context.push(AppConstants.loginRoute);
+              break;
+            case 'signup':
+              context.push(AppConstants.signupRoute);
+              break;
+          }
+        },
+        itemBuilder: (context) => [
+          const PopupMenuItem(
+            value: 'login',
+            child: Row(
+              children: [
+                Icon(Icons.login),
+                SizedBox(width: 8),
+                Text('Sign In'),
+              ],
+            ),
+          ),
+          const PopupMenuItem(
+            value: 'signup',
+            child: Row(
+              children: [
+                Icon(Icons.person_add),
+                SizedBox(width: 8),
+                Text('Sign Up'),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
   }
 }

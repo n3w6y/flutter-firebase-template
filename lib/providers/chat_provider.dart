@@ -1,10 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../models/chat_message.dart';
 import '../models/conversation.dart';
 import '../services/openrouter_service.dart';
 import '../services/firestore_service.dart';
 import '../repositories/chat_repository.dart';
+import 'auth_provider.dart';
 
 /// Provider for OpenRouter service instance
 final openRouterServiceProvider = Provider<OpenRouterService>((ref) {
@@ -39,6 +41,7 @@ class ChatState {
   final String currentModel;
   final Conversation? currentConversation;
   final bool isInitialized;
+  final bool isAuthenticated;
 
   const ChatState({
     this.messages = const [],
@@ -47,6 +50,7 @@ class ChatState {
     this.currentModel = 'deepseek/deepseek-r1-0528',
     this.currentConversation,
     this.isInitialized = false,
+    this.isAuthenticated = false,
   });
 
   ChatState copyWith({
@@ -56,6 +60,7 @@ class ChatState {
     String? currentModel,
     Conversation? currentConversation,
     bool? isInitialized,
+    bool? isAuthenticated,
   }) {
     return ChatState(
       messages: messages ?? this.messages,
@@ -64,6 +69,7 @@ class ChatState {
       currentModel: currentModel ?? this.currentModel,
       currentConversation: currentConversation ?? this.currentConversation,
       isInitialized: isInitialized ?? this.isInitialized,
+      isAuthenticated: isAuthenticated ?? this.isAuthenticated,
     );
   }
 
@@ -76,7 +82,8 @@ class ChatState {
         other.error == error &&
         other.currentModel == currentModel &&
         other.currentConversation == currentConversation &&
-        other.isInitialized == isInitialized;
+        other.isInitialized == isInitialized &&
+        other.isAuthenticated == isAuthenticated;
   }
 
   @override
@@ -86,7 +93,8 @@ class ChatState {
            error.hashCode ^
            currentModel.hashCode ^
            currentConversation.hashCode ^
-           isInitialized.hashCode;
+           isInitialized.hashCode ^
+           isAuthenticated.hashCode;
   }
 }
 
@@ -94,29 +102,51 @@ class ChatState {
 class ChatNotifier extends StateNotifier<ChatState> {
   final OpenRouterService _openRouterService;
   final ConversationRepository _conversationRepository;
+  final Ref _ref;
   ChatMessageRepository? _messageRepository;
 
   ChatNotifier(
     this._openRouterService,
     this._conversationRepository,
+    this._ref,
   ) : super(const ChatState()) {
     _initializeChat();
   }
 
-  /// Initialize chat - create new conversation or load existing
+  /// Initialize chat - check authentication and setup accordingly
   Future<void> _initializeChat() async {
     try {
-      // For now, create a new conversation each time
-      // In a full implementation, you might want to load the last conversation
-      await _createNewConversation();
+      // Check if user is authenticated
+      final user = _ref.read(currentUserProvider);
+      final isAuthenticated = user != null;
+
+      state = state.copyWith(
+        isAuthenticated: isAuthenticated,
+        isInitialized: true,
+      );
+
+      // If authenticated, create/load conversation from Firestore
+      // If not authenticated, just initialize with empty state for local chat
+      if (isAuthenticated) {
+        await _createNewConversation();
+      }
     } catch (e) {
-      state = state.copyWith(error: 'Failed to initialize chat: $e');
+      state = state.copyWith(
+        error: 'Failed to initialize chat: $e',
+        isInitialized: true,
+      );
     }
   }
 
-  /// Create a new conversation
+  /// Create a new conversation (only for authenticated users)
   Future<void> _createNewConversation() async {
     try {
+      // Only create Firestore conversation if user is authenticated
+      final user = _ref.read(currentUserProvider);
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
+
       final systemMessage = _openRouterService.createSystemMessage();
 
       // Create conversation with system message
@@ -142,7 +172,6 @@ class ChatNotifier extends StateNotifier<ChatState> {
       state = state.copyWith(
         currentConversation: conversation,
         messages: messages,
-        isInitialized: true,
       );
     } catch (e) {
       state = state.copyWith(error: 'Failed to create conversation: $e');
@@ -151,7 +180,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
   /// Send a message to the AI
   Future<void> sendMessage(String content) async {
-    if (content.trim().isEmpty || _messageRepository == null || state.currentConversation == null) {
+    if (content.trim().isEmpty) {
       return;
     }
 
@@ -167,27 +196,35 @@ class ChatNotifier extends StateNotifier<ChatState> {
     );
 
     try {
-      // Save user message to Firestore
-      await _messageRepository!.create(userMessage);
+      // Save user message to Firestore (only if authenticated)
+      if (state.isAuthenticated && _messageRepository != null) {
+        await _messageRepository!.create(userMessage);
+      }
 
-      // Send to OpenRouter API
+      // Send to OpenRouter API with system message
+      final systemMessage = _openRouterService.createSystemMessage();
+      final messagesWithSystem = [systemMessage, ...updatedMessages];
       final response = await _openRouterService.sendMessage(
-        messages: updatedMessages,
+        messages: messagesWithSystem,
         model: state.currentModel,
       );
 
-      // Save AI response to Firestore
-      await _messageRepository!.create(response);
+      // Save AI response to Firestore (only if authenticated)
+      if (state.isAuthenticated && _messageRepository != null) {
+        await _messageRepository!.create(response);
 
-      // Update conversation message count
-      final newMessageCount = updatedMessages.length + 1; // +1 for AI response
-      await _conversationRepository.updateMessageCount(
-        state.currentConversation!.id,
-        newMessageCount,
-      );
+        // Update conversation message count
+        final newMessageCount = updatedMessages.length + 1; // +1 for AI response
+        await _conversationRepository.updateMessageCount(
+          state.currentConversation!.id,
+          newMessageCount,
+        );
+      }
 
-      // Update conversation title if this is the first user message
-      if (state.messages.where((m) => m.isUser).length == 1) {
+      // Update conversation title if this is the first user message (only if authenticated)
+      if (state.isAuthenticated &&
+          state.currentConversation != null &&
+          state.messages.where((m) => m.isUser).length == 1) {
         final newTitle = Conversation.generateTitle(content);
         await _conversationRepository.update(
           state.currentConversation!.id,
@@ -211,9 +248,18 @@ class ChatNotifier extends StateNotifier<ChatState> {
     }
   }
 
-  /// Clear chat history - create new conversation
+  /// Clear chat history
   Future<void> clearChat() async {
-    await _createNewConversation();
+    if (state.isAuthenticated) {
+      // Create new conversation for authenticated users
+      await _createNewConversation();
+    } else {
+      // Just clear local messages for unauthenticated users
+      state = state.copyWith(
+        messages: [],
+        error: null,
+      );
+    }
   }
 
   /// Change AI model
@@ -283,7 +329,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
 final chatNotifierProvider = StateNotifierProvider<ChatNotifier, ChatState>((ref) {
   final openRouterService = ref.read(openRouterServiceProvider);
   final conversationRepository = ref.read(conversationRepositoryProvider);
-  return ChatNotifier(openRouterService, conversationRepository);
+  return ChatNotifier(openRouterService, conversationRepository, ref);
 });
 
 /// Provider for chat operations

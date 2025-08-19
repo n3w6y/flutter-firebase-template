@@ -6,6 +6,7 @@ import '../../constants/app_constants.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/auth_state.dart';
 import '../../models/user_model.dart';
+import '../../widgets/navigation/responsive_navigation.dart';
 
 /// User profile management screen
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -67,12 +68,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-        backgroundColor: theme.colorScheme.surface,
-        elevation: 0,
-        actions: [
+    return ResponsiveNavigation(
+      title: 'Profile',
+      actions: [
           if (_isEditing)
             TextButton(
               onPressed: _saveProfile,
@@ -93,9 +91,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               tooltip: 'Edit Profile',
             ),
           ],
-        ],
-      ),
-      body: SingleChildScrollView(
+      ],
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(AppConstants.defaultPadding),
         child: Column(
           children: [

@@ -6,6 +6,7 @@ import '../../constants/app_constants.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../models/user_model.dart';
+import '../../widgets/navigation/responsive_navigation.dart';
 
 /// Settings screen for app preferences and account management
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -22,13 +23,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final user = ref.watch(currentUserProvider);
     final isDarkMode = ref.watch(isDarkModeProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-        backgroundColor: theme.colorScheme.surface,
-        elevation: 0,
-      ),
-      body: ListView(
+    return ResponsiveNavigation(
+      title: 'Settings',
+      child: ListView(
         padding: const EdgeInsets.all(AppConstants.defaultPadding),
         children: [
           // Account Section

@@ -319,8 +319,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
             ),
           );
 
-          // Navigate to login screen
-          context.go(AppConstants.loginRoute);
+          // Navigate to dashboard/home screen
+          context.go(AppConstants.homeRoute);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

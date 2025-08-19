@@ -113,6 +113,7 @@ class OpenRouterService {
     } catch (e) {
       // Return default models if API call fails
       return [
+        'qwen/qwen3-235b-a22b-2507',
         'deepseek/deepseek-r1-0528',
         'openai/gpt-4o',
         'openai/gpt-3.5-turbo',
@@ -140,6 +141,13 @@ class OpenRouterService {
   /// Get model information
   Map<String, dynamic> getModelInfo(String model) {
     switch (model) {
+      case 'qwen/qwen3-235b-a22b-2507':
+        return {
+          'name': 'Qwen3 235B A22B Instruct',
+          'description': 'Advanced large language model with exceptional reasoning and multilingual capabilities',
+          'maxTokens': 32768,
+          'costPer1kTokens': 0.18,
+        };
       case 'deepseek/deepseek-r1-0528':
         return {
           'name': 'DeepSeek R1',
@@ -174,9 +182,9 @@ class OpenRouterService {
   /// Create a system message for better responses
   ChatMessage createSystemMessage() {
     return ChatMessage.system(
-      'You are a helpful AI assistant integrated into a Flutter mobile app. '
-      'Provide concise, helpful responses. Keep your answers brief and to the point '
-      'unless the user specifically asks for detailed explanations.'
+      'You are Qwen3, a helpful AI assistant integrated into a Flutter mobile app. '
+      'Provide concise, helpful responses with excellent reasoning capabilities. '
+      'Keep your answers brief and to the point unless the user specifically asks for detailed explanations.'
     );
   }
 

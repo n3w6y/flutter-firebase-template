@@ -74,8 +74,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
     // Navigate based on onboarding status
     if (onboardingStatus) {
-      // User has completed onboarding but not signed in, go to login
-      context.go(AppConstants.loginRoute);
+      // User has completed onboarding but not signed in, go to dashboard
+      context.go(AppConstants.homeRoute);
     } else {
       // User hasn't completed onboarding, show onboarding
       context.go(AppConstants.onboardingRoute);
