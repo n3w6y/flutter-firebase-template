@@ -216,7 +216,7 @@ final lightThemeProvider = Provider<ThemeData>((ref) {
     ),
 
     // Modern Cards
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       elevation: AppConstants.cardElevation,
       color: AppColors.cardLight,
       shadowColor: AppColors.shadowLight,
@@ -413,6 +413,7 @@ final lightThemeProvider = Provider<ThemeData>((ref) {
       leadingAndTrailingTextStyle: AppTypography.bodyMedium(false),
     ),
   );
+});
 
 /// Dark theme provider
 final darkThemeProvider = Provider<ThemeData>((ref) {
@@ -472,7 +473,7 @@ final darkThemeProvider = Provider<ThemeData>((ref) {
     ),
 
     // Modern Dark Cards
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       elevation: AppConstants.cardElevation,
       color: AppColors.cardDark,
       shadowColor: AppColors.shadowDark,
