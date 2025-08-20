@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../constants/app_constants.dart';
+import '../../constants/app_colors.dart';
+import '../../constants/app_typography.dart';
 import '../../models/subscription_models.dart';
 import '../../providers/subscription_provider.dart';
 import '../../widgets/navigation/responsive_navigation.dart';
+import '../../widgets/common/modern_card.dart';
+import '../../widgets/common/modern_button.dart';
 
 /// Subscription/Premium screen
 class SubscriptionScreen extends ConsumerStatefulWidget {
@@ -178,33 +182,52 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
   }
 
   Widget _buildHeader(BuildContext context, ThemeData theme) {
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return Column(
       children: [
+        // Modern Premium Icon with Gradient
         Container(
-          padding: const EdgeInsets.all(16),
+          width: 120,
+          height: 120,
           decoration: BoxDecoration(
-            color: theme.colorScheme.primary.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(16),
+            gradient: AppColors.premiumGradient,
+            borderRadius: BorderRadius.circular(AppConstants.largeBorderRadius),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.premiumGold.withOpacity(0.4),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-          child: Icon(
-            Icons.workspace_premium,
-            size: 64,
-            color: theme.colorScheme.primary,
+          child: const Icon(
+            Icons.workspace_premium_rounded,
+            size: AppConstants.iconSizeXLarge + 8,
+            color: Colors.white,
           ),
         ),
-        const SizedBox(height: 16),
+
+        const SizedBox(height: AppConstants.spacing24),
+
+        // Modern Title
         Text(
           'Unlock Premium Features',
-          style: theme.textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.bold,
+          style: AppTypography.displaySmall(isDarkMode).copyWith(
+            fontWeight: FontWeight.w700,
+            color: AppColors.getTextPrimary(isDarkMode),
           ),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 8),
+
+        const SizedBox(height: AppConstants.spacing12),
+
+        // Modern Description
         Text(
           'Get unlimited access to advanced AI features and premium content',
-          style: theme.textTheme.bodyLarge?.copyWith(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+          style: AppTypography.bodyLarge(isDarkMode).copyWith(
+            color: AppColors.getTextSecondary(isDarkMode),
+            height: 1.6,
           ),
           textAlign: TextAlign.center,
         ),
@@ -213,86 +236,109 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
   }
 
   Widget _buildPremiumFeatures(BuildContext context, ThemeData theme) {
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     final features = [
       {
-        'icon': Icons.chat_bubble_outline,
+        'icon': Icons.chat_bubble_outline_rounded,
         'title': 'Unlimited AI Conversations',
         'description': 'Chat with Qwen3 without any limits',
+        'color': AppColors.primaryBlue,
       },
       {
-        'icon': Icons.priority_high,
+        'icon': Icons.priority_high_rounded,
         'title': 'Priority Support',
         'description': 'Get faster response times and dedicated support',
+        'color': AppColors.secondaryPurple,
       },
       {
-        'icon': Icons.psychology,
+        'icon': Icons.psychology_rounded,
         'title': 'Advanced AI Models',
         'description': 'Access to the latest and most powerful AI models',
+        'color': AppColors.success,
       },
       {
-        'icon': Icons.block,
+        'icon': Icons.block_rounded,
         'title': 'No Advertisements',
         'description': 'Enjoy an ad-free experience',
+        'color': AppColors.warning,
       },
       {
-        'icon': Icons.download,
+        'icon': Icons.download_rounded,
         'title': 'Export Conversations',
         'description': 'Save and export your chat history',
+        'color': AppColors.info,
       },
       {
-        'icon': Icons.cloud_sync,
+        'icon': Icons.cloud_sync_rounded,
         'title': 'Cloud Sync',
         'description': 'Sync your data across all devices',
+        'color': AppColors.premiumGold,
       },
     ];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Premium Features',
-          style: theme.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
+    return ModernCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Premium Features',
+            style: AppTypography.headlineSmall(isDarkMode).copyWith(
+              fontWeight: FontWeight.w600,
+              color: AppColors.getTextPrimary(isDarkMode),
+            ),
           ),
-        ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppConstants.spacing20),
         ...features.map((feature) => _buildFeatureItem(context, theme, feature)),
       ],
+    ),
     );
   }
 
   Widget _buildFeatureItem(BuildContext context, ThemeData theme, Map<String, dynamic> feature) {
+    final isDarkMode = theme.brightness == Brightness.dark;
+    final featureColor = feature['color'] as Color;
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: AppConstants.spacing20),
       child: Row(
         children: [
+          // Modern Feature Icon
           Container(
-            padding: const EdgeInsets.all(8),
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
+              color: featureColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(AppConstants.smallBorderRadius),
+              border: Border.all(
+                color: featureColor.withOpacity(0.2),
+                width: 1,
+              ),
             ),
             child: Icon(
               feature['icon'] as IconData,
-              color: theme.colorScheme.primary,
-              size: 20,
+              color: featureColor,
+              size: AppConstants.iconSizeMedium,
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: AppConstants.spacing16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   feature['title'] as String,
-                  style: theme.textTheme.titleMedium?.copyWith(
+                  style: AppTypography.titleMedium(isDarkMode).copyWith(
                     fontWeight: FontWeight.w600,
+                    color: AppColors.getTextPrimary(isDarkMode),
                   ),
                 ),
+                const SizedBox(height: AppConstants.spacing4),
                 Text(
                   feature['description'] as String,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                  style: AppTypography.bodyMedium(isDarkMode).copyWith(
+                    color: AppColors.getTextSecondary(isDarkMode),
+                    height: 1.4,
                   ),
                 ),
               ],

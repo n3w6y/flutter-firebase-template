@@ -10,7 +10,12 @@ import '../../models/chat_message.dart';
 import '../../models/user_model.dart';
 import '../../widgets/navigation/responsive_navigation.dart';
 import '../../widgets/subscription/premium_feature_widget.dart';
+import '../../widgets/common/modern_card.dart';
+import '../../widgets/common/modern_button.dart';
 import '../../providers/subscription_provider.dart';
+import '../../constants/app_colors.dart';
+import '../../constants/app_constants.dart';
+import '../../constants/app_typography.dart';
 
 /// Home screen with AI chatbot interface
 class HomeScreen extends ConsumerStatefulWidget {
@@ -188,135 +193,150 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   /// Build empty state when no messages
   Widget _buildEmptyState(BuildContext context, ThemeData theme) {
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppConstants.defaultPadding),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Modern AI Icon with Gradient Background
             Container(
-              width: 120,
-              height: 120,
+              width: 140,
+              height: 140,
               decoration: BoxDecoration(
-                color: theme.colorScheme.primary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(60),
+                gradient: AppColors.primaryGradient,
+                borderRadius: BorderRadius.circular(AppConstants.largeBorderRadius),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primaryBlue.withOpacity(0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
-              child: Icon(
-                Icons.psychology,
-                size: 60,
-                color: theme.colorScheme.primary,
+              child: const Icon(
+                Icons.psychology_outlined,
+                size: AppConstants.iconSizeXLarge + 16,
+                color: Colors.white,
               ),
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: AppConstants.spacing40),
 
+            // Modern Title
             Text(
               'AI Chat Assistant',
-              style: theme.textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: theme.colorScheme.onSurface,
+              style: AppTypography.displaySmall(isDarkMode).copyWith(
+                color: AppColors.getTextPrimary(isDarkMode),
               ),
               textAlign: TextAlign.center,
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: AppConstants.spacing16),
 
+            // Modern Description
             Text(
               'Start a conversation with Qwen3, an advanced AI model with exceptional reasoning capabilities. Ask questions, get help, or just chat!',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.7),
-                height: 1.5,
+              style: AppTypography.bodyLarge(isDarkMode).copyWith(
+                color: AppColors.getTextSecondary(isDarkMode),
+                height: 1.6,
               ),
               textAlign: TextAlign.center,
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: AppConstants.spacing40),
 
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: theme.colorScheme.outline.withOpacity(0.2),
-                ),
-              ),
+            // Modern Suggestions Card
+            ModernCard(
+              padding: const EdgeInsets.all(AppConstants.cardPadding),
               child: Column(
                 children: [
+                  // Modern Header
                   Row(
                     children: [
-                      Icon(
-                        Icons.lightbulb_outline,
-                        color: theme.colorScheme.primary,
-                        size: 20,
+                      Container(
+                        padding: const EdgeInsets.all(AppConstants.spacing8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryBlue.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(AppConstants.spacing8),
+                        ),
+                        child: Icon(
+                          Icons.lightbulb_outline,
+                          color: AppColors.primaryBlue,
+                          size: AppConstants.iconSizeSmall,
+                        ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: AppConstants.spacing12),
                       Text(
                         'Try asking:',
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
+                        style: AppTypography.titleMedium(isDarkMode).copyWith(
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
-                  ...[
-                    '• "What is Flutter?"',
-                    '• "Explain machine learning"',
-                    '• "Help me with coding"',
-                    '• "Tell me a joke"',
-                  ].map((suggestion) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        suggestion,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurface.withOpacity(0.7),
-                        ),
-                      ),
-                    ),
-                  )),
+                  const SizedBox(height: AppConstants.spacing16),
+
+                  // Modern Suggestion Chips
+                  Wrap(
+                    spacing: AppConstants.spacing8,
+                    runSpacing: AppConstants.spacing8,
+                    children: [
+                      'What is Flutter?',
+                      'Explain machine learning',
+                      'Help me with coding',
+                      'Tell me a joke',
+                    ].map((suggestion) => ModernButton(
+                      text: suggestion,
+                      variant: ModernButtonVariant.outline,
+                      size: ModernButtonSize.small,
+                      onPressed: () {
+                        // Auto-fill the suggestion
+                        _messageController.text = suggestion;
+                      },
+                    )).toList(),
+                  ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: AppConstants.spacing32),
 
-            // Premium features section
+            // Modern Premium Features Section
             PremiumFeatureWidget(
               featureName: 'Advanced AI Features',
               description: 'Unlock unlimited conversations, priority support, and advanced AI models with Premium.',
               icon: Icons.workspace_premium,
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primaryContainer.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: theme.colorScheme.primary.withOpacity(0.3),
-                  ),
-                ),
+              child: ModernPremiumCard(
                 child: Column(
                   children: [
                     Row(
                       children: [
-                        Icon(
-                          Icons.verified,
-                          color: theme.colorScheme.primary,
-                          size: 20,
+                        Container(
+                          padding: const EdgeInsets.all(AppConstants.spacing8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(AppConstants.spacing8),
+                          ),
+                          child: const Icon(
+                            Icons.verified,
+                            color: Colors.white,
+                            size: AppConstants.iconSizeSmall,
+                          ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: AppConstants.spacing12),
                         Text(
                           'Premium Features Active',
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.primary,
+                          style: AppTypography.titleMedium(false).copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: AppConstants.spacing16),
                     const PremiumFeaturesList(
                       features: [
                         'Unlimited AI conversations',
@@ -401,95 +421,159 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  /// Build message input field
+  /// Build modern message input field
   Widget _buildMessageInput(BuildContext context, ThemeData theme, bool isListening) {
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(AppConstants.defaultPadding),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        color: AppColors.getSurface(isDarkMode),
         border: Border(
           top: BorderSide(
-            color: theme.colorScheme.outline.withOpacity(0.2),
+            color: AppColors.getBorder(isDarkMode),
+            width: 0.5,
           ),
         ),
       ),
       child: SafeArea(
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Expanded(
-              child: TextField(
-                controller: _messageController,
-                decoration: InputDecoration(
-                  hintText: _isVoiceMode
-                      ? (isListening ? 'Listening...' : 'Tap mic to speak')
-                      : 'Type your message...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide(
-                      color: _isVoiceMode
-                          ? theme.colorScheme.primary.withOpacity(0.5)
-                          : theme.colorScheme.outline.withOpacity(0.2),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.getCard(isDarkMode),
+                  borderRadius: BorderRadius.circular(AppConstants.largeBorderRadius),
+                  border: Border.all(
+                    color: _isVoiceMode
+                        ? AppColors.primaryBlue.withOpacity(0.5)
+                        : AppColors.getBorder(isDarkMode),
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: isDarkMode
+                          ? AppColors.shadowDark
+                          : AppColors.shadowLight,
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  controller: _messageController,
+                  style: AppTypography.bodyLarge(isDarkMode),
+                  decoration: InputDecoration(
+                    hintText: _isVoiceMode
+                        ? (isListening ? 'Listening...' : 'Tap mic to speak')
+                        : 'Type your message...',
+                    hintStyle: AppTypography.bodyLarge(isDarkMode).copyWith(
+                      color: AppColors.getTextSecondary(isDarkMode),
+                    ),
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: AppConstants.spacing20,
+                      vertical: AppConstants.spacing16,
                     ),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide(
-                      color: _isVoiceMode
-                          ? theme.colorScheme.primary.withOpacity(0.5)
-                          : theme.colorScheme.outline.withOpacity(0.2),
-                    ),
+                  maxLines: null,
+                  minLines: 1,
+                  textInputAction: TextInputAction.send,
+                  onSubmitted: _sendMessage,
+                  readOnly: _isVoiceMode && isListening,
+                ),
+              ),
+            ),
+
+            const SizedBox(width: AppConstants.spacing12),
+
+            // Modern Voice Input Button
+            Container(
+              width: AppConstants.buttonHeight,
+              height: AppConstants.buttonHeight,
+              decoration: BoxDecoration(
+                color: _isVoiceMode
+                    ? (isListening ? AppColors.error : AppColors.secondaryPurple)
+                    : AppColors.getCard(isDarkMode),
+                borderRadius: BorderRadius.circular(AppConstants.largeBorderRadius),
+                border: Border.all(
+                  color: _isVoiceMode
+                      ? (isListening ? AppColors.error : AppColors.secondaryPurple)
+                      : AppColors.getBorder(isDarkMode),
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: _isVoiceMode
+                        ? (isListening
+                            ? AppColors.error.withOpacity(0.3)
+                            : AppColors.secondaryPurple.withOpacity(0.3))
+                        : (isDarkMode
+                            ? AppColors.shadowDark
+                            : AppColors.shadowLight),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide(
-                      color: theme.colorScheme.primary,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: _toggleVoiceInput,
+                  borderRadius: BorderRadius.circular(AppConstants.largeBorderRadius),
+                  child: Icon(
+                    _isVoiceMode
+                        ? (isListening ? Icons.stop_rounded : Icons.mic_rounded)
+                        : Icons.mic_none_rounded,
+                    color: _isVoiceMode
+                        ? Colors.white
+                        : AppColors.getTextSecondary(isDarkMode),
+                    size: AppConstants.iconSizeMedium,
                   ),
                 ),
-                maxLines: null,
-                textInputAction: TextInputAction.send,
-                onSubmitted: _sendMessage,
-                readOnly: _isVoiceMode && isListening,
               ),
             ),
 
-            const SizedBox(width: 8),
+            const SizedBox(width: AppConstants.spacing8),
 
-            // Voice input button
-            FloatingActionButton.small(
-              onPressed: _toggleVoiceInput,
-              backgroundColor: _isVoiceMode
-                  ? (isListening ? theme.colorScheme.error : theme.colorScheme.secondary)
-                  : theme.colorScheme.surface,
-              child: Icon(
-                _isVoiceMode
-                    ? (isListening ? Icons.stop : Icons.mic)
-                    : Icons.mic_none,
-                color: _isVoiceMode
-                    ? (isListening ? theme.colorScheme.onError : theme.colorScheme.onSecondary)
-                    : theme.colorScheme.onSurface,
-              ),
-            ),
-
-            const SizedBox(width: 8),
-
-            // Send button
-            FloatingActionButton.small(
-              onPressed: _hasText
-                  ? () => _sendMessage(_messageController.text)
-                  : null,
-              backgroundColor: _hasText
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.outline.withOpacity(0.3),
-              child: Icon(
-                Icons.send,
+            // Modern Send Button
+            Container(
+              width: AppConstants.buttonHeight,
+              height: AppConstants.buttonHeight,
+              decoration: BoxDecoration(
+                gradient: _hasText
+                    ? AppColors.primaryGradient
+                    : null,
                 color: _hasText
-                    ? theme.colorScheme.onPrimary
-                    : theme.colorScheme.onSurface.withOpacity(0.5),
+                    ? null
+                    : AppColors.neutral300,
+                borderRadius: BorderRadius.circular(AppConstants.largeBorderRadius),
+                boxShadow: _hasText ? [
+                  BoxShadow(
+                    color: AppColors.primaryBlue.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ] : null,
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: _hasText
+                      ? () => _sendMessage(_messageController.text)
+                      : null,
+                  borderRadius: BorderRadius.circular(AppConstants.largeBorderRadius),
+                  child: Icon(
+                    Icons.send_rounded,
+                    color: _hasText
+                        ? Colors.white
+                        : AppColors.neutral500,
+                    size: AppConstants.iconSizeMedium,
+                  ),
+                ),
               ),
             ),
           ],

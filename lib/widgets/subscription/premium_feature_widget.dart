@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../providers/subscription_provider.dart';
+import '../../constants/app_colors.dart';
+import '../../constants/app_constants.dart';
+import '../../constants/app_typography.dart';
 
 /// Widget that shows premium content or upgrade prompt
 class PremiumFeatureWidget extends ConsumerWidget {
@@ -189,24 +192,35 @@ class PremiumFeaturesList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: features.map((feature) {
         return Padding(
-          padding: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.only(bottom: AppConstants.spacing12),
           child: Row(
             children: [
-              Icon(
-                Icons.check_circle,
-                size: 16,
-                color: theme.colorScheme.primary,
+              Container(
+                padding: const EdgeInsets.all(AppConstants.spacing4),
+                decoration: BoxDecoration(
+                  color: AppColors.success.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(AppConstants.spacing8),
+                ),
+                child: Icon(
+                  Icons.check_circle_rounded,
+                  size: AppConstants.iconSizeSmall,
+                  color: AppColors.success,
+                ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: AppConstants.spacing12),
               Expanded(
                 child: Text(
                   feature,
-                  style: theme.textTheme.bodyMedium,
+                  style: AppTypography.bodyMedium(isDarkMode).copyWith(
+                    color: AppColors.getTextPrimary(isDarkMode),
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ],
