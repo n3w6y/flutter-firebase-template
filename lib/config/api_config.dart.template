@@ -14,7 +14,10 @@ class ApiConfig {
   
   // Firebase Configuration (if using custom config)
   static const String firebaseProjectId = 'your-firebase-project-id';
-  
+
+  // RevenueCat Configuration
+  static const String revenueCatApiKey = 'YOUR_REVENUECAT_API_KEY_HERE';
+
   // Other API keys (add as needed)
   static const String googleMapsApiKey = 'YOUR_GOOGLE_MAPS_API_KEY';
   static const String analyticsApiKey = 'YOUR_ANALYTICS_API_KEY';
@@ -23,13 +26,18 @@ class ApiConfig {
   static const bool isDevelopment = bool.fromEnvironment('DEVELOPMENT', defaultValue: true);
   static const bool isProduction = bool.fromEnvironment('PRODUCTION', defaultValue: false);
   
-  // Validation method
+  // Validation methods
   static bool get isConfigured {
     return openRouterApiKey != 'YOUR_OPENROUTER_API_KEY_HERE' &&
            openRouterApiKey.isNotEmpty;
   }
-  
-  // Get API key with fallback
+
+  static bool get isRevenueCatConfigured {
+    return revenueCatApiKey != 'YOUR_REVENUECAT_API_KEY_HERE' &&
+           revenueCatApiKey.isNotEmpty;
+  }
+
+  // Get API keys with fallback
   static String get validatedOpenRouterApiKey {
     if (!isConfigured) {
       throw Exception(
@@ -38,5 +46,15 @@ class ApiConfig {
       );
     }
     return openRouterApiKey;
+  }
+
+  static String get validatedRevenueCatApiKey {
+    if (!isRevenueCatConfigured) {
+      throw Exception(
+        'RevenueCat API key not configured. Please copy api_config.dart.template '
+        'to api_config.dart and add your RevenueCat API key.'
+      );
+    }
+    return revenueCatApiKey;
   }
 }

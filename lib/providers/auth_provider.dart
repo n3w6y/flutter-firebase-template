@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user_model.dart';
 import '../models/auth_state.dart';
 import '../services/firebase_auth_service.dart';
+import 'subscription_provider.dart';
 
 /// Provider for FirebaseAuthService instance
 final firebaseAuthServiceProvider = Provider<FirebaseAuthService>((ref) {
@@ -42,8 +43,9 @@ final isSignedInProvider = Provider<bool>((ref) {
 /// State notifier for authentication operations
 class AuthNotifier extends StateNotifier<AuthState> {
   final FirebaseAuthService _authService;
+  final Ref _ref;
 
-  AuthNotifier(this._authService) : super(AuthState.loading) {
+  AuthNotifier(this._authService, this._ref) : super(AuthState.loading) {
     _init();
   }
 
@@ -52,10 +54,35 @@ class AuthNotifier extends StateNotifier<AuthState> {
     _authService.authStateChanges.listen((user) {
       if (user != null) {
         state = AuthState.authenticated;
+        // Initialize subscription service with user ID
+        _initializeSubscriptionService(user.uid);
       } else {
         state = AuthState.unauthenticated;
+        // Logout from subscription service
+        _logoutFromSubscriptionService();
       }
     });
+  }
+
+  /// Initialize subscription service for authenticated user
+  void _initializeSubscriptionService(String userId) {
+    try {
+      final subscriptionNotifier = _ref.read(subscriptionOperationsProvider);
+      subscriptionNotifier.initialize(userId: userId);
+    } catch (e) {
+      // Handle subscription initialization error silently
+      // This is not critical for app functionality
+    }
+  }
+
+  /// Logout from subscription service
+  void _logoutFromSubscriptionService() {
+    try {
+      final subscriptionNotifier = _ref.read(subscriptionOperationsProvider);
+      subscriptionNotifier.logoutUser();
+    } catch (e) {
+      // Handle subscription logout error silently
+    }
   }
 
   /// Sign up with email and password
@@ -208,7 +235,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 /// Provider for AuthNotifier
 final authNotifierProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final authService = ref.read(firebaseAuthServiceProvider);
-  return AuthNotifier(authService);
+  return AuthNotifier(authService, ref);
 });
 
 /// Convenience providers for auth operations

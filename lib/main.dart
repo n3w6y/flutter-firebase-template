@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'services/onboarding_service.dart';
 import 'services/firestore_service.dart';
+import 'services/revenue_cat_service.dart';
 import 'utils/app_router.dart';
 import 'constants/app_constants.dart';
 import 'providers/theme_provider.dart';
@@ -20,6 +21,9 @@ void main() async {
   // Initialize services
   await OnboardingService.init();
   await FirestoreService().initialize();
+
+  // Initialize RevenueCat (will be configured when user accesses subscription features)
+  // RevenueCat initialization is handled in the subscription provider
 
   runApp(const ProviderScope(child: MyApp()));
 }

@@ -41,6 +41,15 @@ class NavigationConfig {
           showInDrawer: true,
         ),
         NavigationItem(
+          id: 'subscription',
+          label: 'Premium',
+          icon: Icons.workspace_premium_outlined,
+          activeIcon: Icons.workspace_premium,
+          route: '/subscription',
+          showInBottomNav: true,
+          showInDrawer: true,
+        ),
+        NavigationItem(
           id: 'settings',
           label: 'Settings',
           icon: Icons.settings_outlined,

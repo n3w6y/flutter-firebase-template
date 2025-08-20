@@ -12,6 +12,7 @@ import '../screens/profile/profile_screen.dart';
 import '../screens/profile/edit_profile_screen.dart';
 import '../screens/settings/settings_screen.dart';
 import '../screens/help/help_screen.dart';
+import '../screens/subscription/subscription_screen.dart';
 
 /// App router configuration using GoRouter
 class AppRouter {
@@ -84,6 +85,13 @@ class AppRouter {
         path: '/help',
         name: 'help',
         builder: (context, state) => const HelpScreen(),
+      ),
+
+      // Subscription Screen Route
+      GoRoute(
+        path: '/subscription',
+        name: 'subscription',
+        builder: (context, state) => const SubscriptionScreen(),
       ),
     ],
     

@@ -9,6 +9,8 @@ import '../../providers/chat_provider.dart';
 import '../../models/chat_message.dart';
 import '../../models/user_model.dart';
 import '../../widgets/navigation/responsive_navigation.dart';
+import '../../widgets/subscription/premium_feature_widget.dart';
+import '../../providers/subscription_provider.dart';
 
 /// Home screen with AI chatbot interface
 class HomeScreen extends ConsumerStatefulWidget {
@@ -95,6 +97,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return ResponsiveNavigation(
       title: 'AI Chat - ${user?.firstName ?? 'User'}',
       actions: [
+        // Subscription status
+        const SubscriptionStatusWidget(),
+
         // Clear chat button
         IconButton(
           onPressed: () {
@@ -273,6 +278,55 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   )),
                 ],
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Premium features section
+            PremiumFeatureWidget(
+              featureName: 'Advanced AI Features',
+              description: 'Unlock unlimited conversations, priority support, and advanced AI models with Premium.',
+              icon: Icons.workspace_premium,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primaryContainer.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: theme.colorScheme.primary.withOpacity(0.3),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.verified,
+                          color: theme.colorScheme.primary,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Premium Features Active',
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    const PremiumFeaturesList(
+                      features: [
+                        'Unlimited AI conversations',
+                        'Priority support',
+                        'Advanced AI models',
+                        'Export conversations',
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
