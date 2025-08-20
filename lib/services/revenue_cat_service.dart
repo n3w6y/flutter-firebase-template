@@ -39,16 +39,13 @@ class RevenueCatService {
       PurchasesConfiguration configuration;
 
       if (Platform.isAndroid) {
-        configuration = PurchasesConfiguration(ApiConfig.validatedRevenueCatApiKey);
+        configuration = PurchasesConfiguration(ApiConfig.validatedRevenueCatApiKey)
+          ..appUserID = userId;
       } else if (Platform.isIOS) {
-        configuration = PurchasesConfiguration(ApiConfig.validatedRevenueCatApiKey);
+        configuration = PurchasesConfiguration(ApiConfig.validatedRevenueCatApiKey)
+          ..appUserID = userId;
       } else {
         throw UnsupportedError('Platform not supported for RevenueCat');
-      }
-
-      // Set user ID if provided
-      if (userId != null) {
-        configuration = configuration.copyWith(appUserID: userId);
       }
 
       await Purchases.configure(configuration);
@@ -308,20 +305,44 @@ class RevenueCatService {
   /// Parse CustomerInfo to SubscriptionStatus
   SubscriptionStatus _parseSubscriptionStatus(CustomerInfo customerInfo) {
     final entitlements = customerInfo.entitlements.active;
-    
+
     if (entitlements.isEmpty) {
       return SubscriptionStatus.free();
     }
 
     // Get the first active entitlement
     final activeEntitlement = entitlements.values.first;
-    
+
+    // Parse dates safely
+    DateTime? expirationDate;
+    DateTime? purchaseDate;
+
+    try {
+      if (activeEntitlement.expirationDate != null) {
+        expirationDate = DateTime.parse(activeEntitlement.expirationDate!);
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error parsing expiration date: $e');
+      }
+    }
+
+    try {
+      if (activeEntitlement.latestPurchaseDate != null) {
+        purchaseDate = DateTime.parse(activeEntitlement.latestPurchaseDate!);
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error parsing purchase date: $e');
+      }
+    }
+
     return SubscriptionStatus(
       isActive: true,
       isPremium: true,
       activeEntitlement: activeEntitlement.identifier,
-      expirationDate: activeEntitlement.expirationDate,
-      purchaseDate: activeEntitlement.latestPurchaseDate,
+      expirationDate: expirationDate,
+      purchaseDate: purchaseDate,
       productId: activeEntitlement.productIdentifier,
       willRenew: activeEntitlement.willRenew,
       isInGracePeriod: activeEntitlement.isActive,
