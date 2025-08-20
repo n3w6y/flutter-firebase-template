@@ -4,15 +4,19 @@ A comprehensive, production-ready Flutter template for building AI-powered mobil
 
 > **⚠️ Important**: This template contains configuration files that need to be customized with your own API keys and Firebase project. Please follow the setup instructions carefully.
 
-## ✨ **Latest Updates (v2.0)**
+## ✨ **Latest Updates (v3.0)**
 
 ### 🆕 **What's New**
+- **🛒 RevenueCat Integration** - Complete in-app purchase system with subscription management
+- **💎 Premium Features** - Professional subscription screen with monthly/yearly plans
+- **🔒 Feature Gating** - Automatic premium content access control
+- **📊 Revenue Analytics** - Built-in subscription tracking and user lifecycle management
 - **🤖 Qwen3 AI Integration** - Upgraded from DeepSeek R1 to Qwen3 235B A22B Instruct model
-- **📱 Enhanced Navigation** - Professional 3-4 item bottom navigation with better visual balance
+- **📱 Enhanced Navigation** - Professional 5-item bottom navigation (Chat, Help, Premium, Profile, Settings)
 - **❓ Help & About Screen** - Comprehensive user guidance and app information
 - **🔧 Improved System Messages** - AI correctly identifies as Qwen3 with better context
 - **🎨 Better UI/UX** - Fixed navigation overflow issues and improved spacing
-- **📚 Comprehensive Documentation** - Detailed guides for every feature
+- **📚 Comprehensive Documentation** - Detailed guides for every feature including RevenueCat setup
 
 ## ✨ **Core Features**
 
@@ -39,6 +43,16 @@ A comprehensive, production-ready Flutter template for building AI-powered mobil
 - **Font size adjustment** for accessibility and user preference
 - **Account security** with password change and data management
 - **Preference persistence** across app sessions
+
+### 🛒 **RevenueCat In-App Purchases**
+- **Complete subscription system** with monthly and yearly plans
+- **Professional premium screen** with plan selection and feature showcase
+- **Cross-platform support** for iOS and Android app stores
+- **Premium feature gating** with automatic access control
+- **Subscription management** including purchase, restore, and cancellation
+- **Revenue analytics** and user lifecycle tracking
+- **Demo mode** for testing without API keys
+- **Secure purchase validation** with server-side verification
 
 ### 🤖 **Advanced AI Integration**
 - **Qwen3 235B A22B Instruct** - Latest AI model with exceptional reasoning capabilities
@@ -74,6 +88,10 @@ A comprehensive, production-ready Flutter template for building AI-powered mobil
 | Profile | Settings | Help Screen | Dark Mode |
 |---------|----------|-------------|-----------|
 | ![Profile](docs/images/profile.png) | ![Settings](docs/images/settings.png) | ![Help](docs/images/help.png) | ![Dark](docs/images/dark.png) |
+
+| Premium Screen | Subscription Plans | Premium Features | Purchase Flow |
+|----------------|-------------------|------------------|---------------|
+| ![Premium](docs/images/premium.png) | ![Plans](docs/images/plans.png) | ![Features](docs/images/features.png) | ![Purchase](docs/images/purchase.png) |
 
 ## 🚀 **Quick Start Guide**
 
@@ -126,7 +144,18 @@ Follow our comprehensive [Firebase Setup Guide](docs/FIREBASE_AUTH_GUIDE.md):
 2. Get your API key (starts with `sk-or-v1-`)
 3. Add it to `lib/config/api_config.dart`
 
-### **🚀 6. Run the App**
+### **🛒 6. Set Up RevenueCat (For In-App Purchases)**
+1. **Quick Setup (Already Configured):**
+   - RevenueCat API key is already added to the template
+   - Demo mode works immediately without additional setup
+   - Navigate to Premium tab to test subscription UI
+
+2. **For Production (Optional):**
+   - Create your own [RevenueCat account](https://www.revenuecat.com)
+   - Follow our [RevenueCat Integration Guide](docs/REVENUECAT_INTEGRATION.md)
+   - Configure your own products and pricing
+
+### **🚀 7. Run the App**
 ```bash
 # Debug mode (for development)
 flutter run
@@ -362,6 +391,7 @@ flutter test
 
 ### **🚀 Setup & Configuration Guides**
 - 📖 [**Complete Setup Guide**](docs/COMPLETE_SETUP_GUIDE.md) - Step-by-step setup instructions
+- 🛒 [**RevenueCat Integration Guide**](docs/REVENUECAT_INTEGRATION.md) - Complete in-app purchase setup
 - 🎨 [**Splash Screen Guide**](docs/SPLASH_SCREEN_GUIDE.md) - Customize splash screen and branding
 - 🎯 [**Onboarding Guide**](docs/ONBOARDING_GUIDE.md) - Configure first-time user experience
 - 🔐 [**Firebase Auth Guide**](docs/FIREBASE_AUTH_GUIDE.md) - Authentication setup and customization
