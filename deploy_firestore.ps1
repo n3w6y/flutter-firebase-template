@@ -43,14 +43,15 @@ Write-Host "Setting up Firebase project..." -ForegroundColor Cyan
 
 # Set the Firebase project
 try {
-    firebase use flutter-template-3887d --token $env:FIREBASE_TOKEN 2>$null
+    firebase use your-firebase-project-id --token $env:FIREBASE_TOKEN 2>$null
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Setting project interactively..." -ForegroundColor Yellow
         firebase use --add
         if ($LASTEXITCODE -ne 0) {
             Write-Host "Failed to set Firebase project!" -ForegroundColor Red
             Write-Host ""
-            Write-Host "Please make sure you have access to the project: flutter-template-3887d" -ForegroundColor Yellow
+            Write-Host "Please make sure you have access to your Firebase project" -ForegroundColor Yellow
+            Write-Host "Update this script with your actual project ID" -ForegroundColor Yellow
             Read-Host "Press Enter to exit..."
             exit 1
         }

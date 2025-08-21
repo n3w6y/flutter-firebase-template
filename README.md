@@ -219,11 +219,14 @@ flutter build ios --release
 5. Copy your API key (starts with `sk-or-v1-`)
 
 #### **2.2 Configure API Keys**
-Edit `lib/config/api_config.dart`:
+
+⚠️ **Important**: This template uses demo/placeholder keys for security.
+
+**For actual development**, replace the demo keys in `lib/config/api_config.dart`:
 ```dart
 class ApiConfig {
-  // 🔑 Replace with your actual OpenRouter API key
-  static const String openRouterApiKey = 'sk-or-v1-your-actual-key-here';
+  // 🔑 Replace the demo key with your actual OpenRouter API key
+  static const String openRouterApiKey = 'sk-or-v1-YOUR_ACTUAL_OPENROUTER_KEY';
 
   // 🤖 AI Model - Now using Qwen3 (upgraded from DeepSeek R1)
   static const String defaultAiModel = 'qwen/qwen3-235b-a22b-2507';
@@ -232,10 +235,12 @@ class ApiConfig {
   static const String siteUrl = 'https://your-app-domain.com';
   static const String siteName = 'Your App Name';
 
-  // 🔥 Your Firebase project ID (optional, for reference)
+  // 🔥 Your Firebase project ID
   static const String firebaseProjectId = 'your-firebase-project-id';
 }
 ```
+
+📖 **Need help with setup?** See `SETUP_WITH_REAL_CREDENTIALS.md` for detailed instructions.
 
 #### **2.3 Available AI Models**
 | Model | Description | Context | Cost per 1K tokens |

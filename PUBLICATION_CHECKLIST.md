@@ -5,10 +5,12 @@ Before publishing the Flutter AI Template, ensure all items are completed.
 ## 🔒 **Security & Privacy**
 
 ### **API Keys & Secrets**
-- [x] ✅ Removed actual OpenRouter API key from `lib/services/openrouter_service.dart`
+- [x] ✅ Removed actual OpenRouter API key from `lib/config/api_config.dart`
+- [x] ✅ Removed actual RevenueCat API key from `lib/config/api_config.dart`
 - [x] ✅ Created `lib/config/api_config.dart.template` with placeholders
 - [x] ✅ Added `lib/config/api_config.dart` to `.gitignore`
 - [x] ✅ Replaced Firebase configuration with placeholders in `lib/firebase_options.dart`
+- [x] ✅ Created `REAL_CREDENTIALS.md` with actual keys (gitignored)
 - [x] ✅ Updated `.gitignore` to exclude all sensitive files
 
 ### **Firebase Configuration**

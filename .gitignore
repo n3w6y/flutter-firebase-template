@@ -62,6 +62,9 @@ lib/config/api_config.dart
 lib/config/api_keys.dart
 lib/config/secrets.dart
 
+# Real credentials file (NEVER commit this!)
+REAL_CREDENTIALS.md
+
 # Local configuration files
 config/local.dart
 config/development.dart

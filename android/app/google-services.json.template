@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "123456789012",
+    "project_id": "your-firebase-project-id",
+    "storage_bucket": "your-firebase-project-id.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:123456789012:android:demo_app_id_replace_with_actual",
+        "android_client_info": {
+          "package_name": "com.yourcompany.yourapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "123456789012-demo_client_id_replace_with_actual.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.yourcompany.yourapp",
+            "certificate_hash": "demo_certificate_hash_replace_with_actual"
+          }
+        },
+        {
+          "client_id": "123456789012-demo_web_client_id_replace_with_actual.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDEMO_ANDROID_API_KEY_REPLACE_WITH_YOUR_ACTUAL_KEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "123456789012-demo_web_client_id_replace_with_actual.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
