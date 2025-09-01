@@ -83,15 +83,15 @@ A comprehensive, production-ready Flutter template for building AI-powered mobil
 
 | Splash Screen | Onboarding | AI Chat | Navigation |
 |---------------|------------|---------|------------|
-| ![Splash](assets/images/splash.png) | ![Onboarding](assets/images/onboarding.png) | ![Chat](assets/images/chat.png) | ![Navigation](docs/assets/navigation.png) |
+| ![Splash](docs/images/splash.png) | ![Onboarding](docs/images/onboarding.png) | ![Chat](docs/images/chat.png) | ![Navigation](docs/images/navigation.png) |
 
 | Profile | Settings | Help Screen | Dark Mode |
 |---------|----------|-------------|-----------|
-| ![Profile](assets/images/profile.png) | ![Settings](assets/images/settings.png) | ![Help](assets/images/help.png) | ![Dark](assets/images/dark.png) |
+| ![Profile](docs/images/profile.png) | ![Settings](docs/images/settings.png) | ![Help](docs/images/help.png) | ![Dark](docs/images/dark.png) |
 
 | Premium Screen | Subscription Plans | Premium Features | Purchase Flow |
 |----------------|-------------------|------------------|---------------|
-| ![Premium](assets/images/premium.png) | ![Plans](assets/images/plans.png) | ![Features](assets/images/features.png) | ![Purchase](assets/images/purchase.png) |
+| ![Premium](docs/images/premium.png) | ![Plans](docs/images/plans.png) | ![Features](docs/images/features.png) | ![Purchase](docs/images/purchase.png) |
 
 ## 🚀 **Quick Start Guide**
 
